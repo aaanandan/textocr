@@ -1,31 +1,53 @@
-import net.sourceforge.tess4j.ITesseract;
-import net.sourceforge.tess4j.Tesseract;
-import net.sourceforge.tess4j.TesseractException;
+
+import java.awt.BorderLayout;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.imageio.ImageIO;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.nio.file.Files;
-import java.util.*;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import com.cybozu.labs.langdetect.Detector;
 import com.cybozu.labs.langdetect.DetectorFactory;
 import com.cybozu.labs.langdetect.LangDetectException;
 
+import net.sourceforge.tess4j.ITesseract;
+import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.TesseractException;
+
+//TODO: tamil chars are not displaying propery.
 public class App {
 
     private static JProgressBar progressBar;
@@ -241,9 +263,7 @@ public class App {
     }
 
     private static String convertDocToText(File inputFile, File outputFile) throws IOException {
-        try (FileInputStream fis = new FileInputStream(inputFile);
-             HWPFDocument document = new HWPFDocument(fis);
-             WordExtractor extractor = new WordExtractor(document)) {
+        try (FileInputStream fis = new FileInputStream(inputFile); HWPFDocument document = new HWPFDocument(fis); WordExtractor extractor = new WordExtractor(document)) {
             String text = extractor.getText();
             Files.write(outputFile.toPath(), text.getBytes());
             return text;
@@ -251,9 +271,7 @@ public class App {
     }
 
     private static String convertDocxToText(File inputFile, File outputFile) throws IOException {
-        try (FileInputStream fis = new FileInputStream(inputFile);
-             XWPFDocument document = new XWPFDocument(fis);
-             XWPFWordExtractor extractor = new XWPFWordExtractor(document)) {
+        try (FileInputStream fis = new FileInputStream(inputFile); XWPFDocument document = new XWPFDocument(fis); XWPFWordExtractor extractor = new XWPFWordExtractor(document)) {
             String text = extractor.getText();
             Files.write(outputFile.toPath(), text.getBytes());
             return text;
@@ -337,6 +355,7 @@ public class App {
 }
 
 class FileConversionRecord {
+
     private String sourceFilePath;
     private String destinationFilePath;
     private String conversionType;
